@@ -1,3 +1,4 @@
+import { BodyInfo } from './../models/BodyInfo';
 /*!
  * Copyright (c) 2018, Okta, Inc. and/or its affiliates. All rights reserved.
  * The Okta software accompanied by this notice is provided pursuant to the Apache License, Version 2.0 (the "License.")
@@ -25,7 +26,7 @@ import { BodyInfoService } from '../body-info.service';
 })
 export class BodyInfoComponent implements OnInit {
   failed: Boolean;
-  public bodyInfo: any[] = [];
+  public bodyInfo: BodyInfo;
 
   constructor(
     public oktaAuth: OktaAuthService,

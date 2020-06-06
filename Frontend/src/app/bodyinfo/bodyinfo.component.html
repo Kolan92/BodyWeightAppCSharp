@@ -8,4 +8,5 @@
     </div>
   </div>
 </div>
-<div>{{bodyInfo | json}}</div>
+
+<div *ngIf="bodyInfo">{{bodyInfo | json}}</div>
