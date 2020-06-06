@@ -27,14 +27,16 @@ namespace BodyWeightApp.WebApi.Controllers
         [SwaggerResponse(401)]
         public async Task<IActionResult> GetBodyInfos()
         {
+            var height = 1.90;
+
             var measures = new List<BodyWeightModel>
             {
-                new BodyWeightModel{Weight = 90, MeasuredOn = new DateTime(2020, 01, 01)},
-                new BodyWeightModel{Weight = 90.3, MeasuredOn = new DateTime(2020, 01, 08)},
-                new BodyWeightModel{Weight = 91, MeasuredOn = new DateTime(2020, 01, 15)},
-                new BodyWeightModel{Weight = 90, MeasuredOn = new DateTime(2020, 01, 22)},
-                new BodyWeightModel{Weight = 89.6, MeasuredOn = new DateTime(2020, 01, 29)},
-                new BodyWeightModel{Weight = 89, MeasuredOn = new DateTime(2020, 02, 06)},
+                new BodyWeightModel( 90, height, new DateTime(2020, 01, 01)),
+                new BodyWeightModel( 90.3, height, new DateTime(2020, 01, 08)),
+                new BodyWeightModel( 91, height, new DateTime(2020, 01, 15)),
+                new BodyWeightModel( 90, height, new DateTime(2020, 01, 22)),
+                new BodyWeightModel( 89.6, height, new DateTime(2020, 01, 29)),
+                new BodyWeightModel( 100, height, new DateTime(2020, 02, 06))
             };
 
             var model = new BodyInfoModel

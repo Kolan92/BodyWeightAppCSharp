@@ -9,4 +9,15 @@
   </div>
 </div>
 
-<div *ngIf="bodyInfo">{{bodyInfo | json}}</div>
+<div>
+  <div style="display: block" *ngIf="chartData">
+    <canvas baseChart
+            [datasets]="chartData"
+            [labels]="chartLabels"
+            [options]="chartOptions"
+            [legend]="chartLegend"
+            [chartType]="chartType"
+            [options]="options">
+    </canvas>
+  </div>
+</div>

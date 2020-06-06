@@ -1,21 +1,8 @@
 import { BodyInfo } from './../models/BodyInfo';
-/*!
- * Copyright (c) 2018, Okta, Inc. and/or its affiliates. All rights reserved.
- * The Okta software accompanied by this notice is provided pursuant to the Apache License, Version 2.0 (the "License.")
- *
- * You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
- * See the License for the specific language governing permissions and limitations under the License.
- */
-
 import { Component, OnInit } from '@angular/core';
 import { OktaAuthService } from '@okta/okta-angular';
-import { HttpClient } from '@angular/common/http';
+import { ChartDataSets, ChartOptions } from 'chart.js';
 
-import sampleConfig from '../app.config';
 import { BodyInfoService } from '../body-info.service';
 
 
@@ -28,15 +15,60 @@ export class BodyInfoComponent implements OnInit {
   failed: Boolean;
   public bodyInfo: BodyInfo;
 
+  public chartOptions = {
+    scaleShowVerticalLines: false,
+    responsive: true
+  };
+  public chartLabels = [];
+  public chartType = 'line';
+  public chartLegend = false;
+  public chartData:Array<ChartDataSets>;
+
+  public options: ChartOptions =  {
+      responsive: true,
+      scales: {
+        // We use this empty structure as a placeholder for dynamic theming.
+        xAxes: [{}],
+        yAxes: [
+          {
+            id: 'weight',
+            position: 'left',
+          },
+          {
+            id: 'bmi',
+            position: 'right',
+            gridLines: {
+              color: 'rgba(255,0,0,0.3)',
+            },
+            ticks: {
+              fontColor: 'red',
+            }
+          }
+        ]
+      }
+    };
+
   constructor(
     public oktaAuth: OktaAuthService,
-    private bodyInfoService: BodyInfoService) {
+    private bodyInfoService: BodyInfoService,
+    ) {
   }
 
   ngOnInit() {
     this.bodyInfoService.getBodyInfo()
       .subscribe(bodyInfos => {
         this.bodyInfo = bodyInfos;
+        console.log(bodyInfos);
+        this.chartLabels = this.bodyInfo.weightMeasurements.map(e => new Date(e.measuredOn).toDateString());
+        this.chartData = [
+          {
+            yAxisID: 'weight',
+            data : this.bodyInfo.weightMeasurements.map(e => e.weight)},
+          {
+            yAxisID: 'bmi',
+            data : this.bodyInfo.weightMeasurements.map(e => e.bmi)
+          }
+        ];
       },
       err => console.error(err));
   }

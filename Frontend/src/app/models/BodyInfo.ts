@@ -4,6 +4,7 @@ export interface BodyInfo {
 }
 
 export interface BodyWeight {
+  bmi: number;
   weight: number;
   measuredOn: Date;
 }
