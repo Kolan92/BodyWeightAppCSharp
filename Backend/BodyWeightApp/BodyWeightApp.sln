@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29613.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Src", "Src", "{7CC54EEE-7BAD-472B-884B-0EF8BE89AF07}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{9A6CBB39-6230-4F98-BB31-674CBC699827}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BodyWeightApp.WebApi", "Src\BodyWeightApp.WebApi\BodyWeightApp.WebApi.csproj", "{0594D4E5-94EE-4478-ACD9-8F799D5499CA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0594D4E5-94EE-4478-ACD9-8F799D5499CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0594D4E5-94EE-4478-ACD9-8F799D5499CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0594D4E5-94EE-4478-ACD9-8F799D5499CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0594D4E5-94EE-4478-ACD9-8F799D5499CA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{0594D4E5-94EE-4478-ACD9-8F799D5499CA} = {7CC54EEE-7BAD-472B-884B-0EF8BE89AF07}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D802F476-03FA-4A50-9B89-D91D7BF36882}
+	EndGlobalSection
+EndGlobal
