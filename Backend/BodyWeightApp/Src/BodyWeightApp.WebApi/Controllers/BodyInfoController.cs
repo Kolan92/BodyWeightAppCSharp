@@ -4,16 +4,18 @@ using System.Threading.Tasks;
 
 using BodyWeightApp.WebApi.Models;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using Swashbuckle.Swagger.Annotations;
 
 namespace BodyWeightApp.WebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("v1/api/[controller]")]
     [ApiController]
     [Produces("application/json")]
-    public class BodyWeightController : ControllerBase
+    [Authorize]
+    public class BodyInfoController : ControllerBase
     {
 
         /// <summary>
