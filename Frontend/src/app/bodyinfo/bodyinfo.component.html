@@ -1,0 +1,11 @@
+<h1 class="ui header">
+  <i aria-hidden="true" class="universal access icon"></i> My bodyinfo
+</h1>
+<div *ngIf="failed" class="ui error message">
+  <div class="content">
+    <div class="header">
+      Failed to fetch body info.
+    </div>
+  </div>
+</div>
+<div>{{bodyInfo | json}}</div>

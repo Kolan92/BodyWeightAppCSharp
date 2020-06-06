@@ -11,7 +11,7 @@ using Swashbuckle.Swagger.Annotations;
 
 namespace BodyWeightApp.WebApi.Controllers
 {
-    [Route("v1/api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     [Produces("application/json")]
     [Authorize]

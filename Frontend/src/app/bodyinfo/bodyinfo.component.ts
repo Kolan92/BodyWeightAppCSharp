@@ -10,25 +10,33 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-import { Router } from '@angular/router';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { OktaAuthService } from '@okta/okta-angular';
+import { HttpClient } from '@angular/common/http';
+
+import sampleConfig from '../app.config';
+import { BodyInfoService } from '../body-info.service';
+
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  selector: 'app-bodyinfo',
+  templateUrl: './bodyinfo.component.html',
+  styleUrls: ['./bodyinfo.component.css']
 })
-export class AppComponent {
-  title = 'app';
-  isAuthenticated: boolean;
-  constructor(public oktaAuth: OktaAuthService, private router: Router) {
-    this.oktaAuth.$authenticationState.subscribe(isAuthenticated => this.isAuthenticated = isAuthenticated)
+export class BodyInfoComponent implements OnInit {
+  failed: Boolean;
+  public bodyInfo: any[] = [];
+
+  constructor(
+    public oktaAuth: OktaAuthService,
+    private bodyInfoService: BodyInfoService) {
   }
-  async ngOnInit() {
-    this.isAuthenticated = await this.oktaAuth.isAuthenticated();
-  }
-  logout() {
-    this.oktaAuth.logout('/');
+
+  ngOnInit() {
+    this.bodyInfoService.getBodyInfo()
+      .subscribe(bodyInfos => {
+        this.bodyInfo = bodyInfos;
+      },
+      err => console.error(err));
   }
 }

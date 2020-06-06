@@ -10,15 +10,26 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-import { enableProdMode } from '@angular/core';
-import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { Component, OnInit } from '@angular/core';
+import { OktaAuthService } from '@okta/okta-angular';
+import { ProfileService } from '../profile.service';
 
-import { AppModule } from './app/app.module';
-import { environment } from './environments/environment';
+@Component({
+  selector: 'app-profile',
+  templateUrl: './profile.component.html',
+  styleUrls: ['./profile.component.css']
+})
+export class ProfileComponent implements OnInit {
+  public profile: any;
 
-if (environment.production) {
-  enableProdMode();
+  constructor(public oktaAuth: OktaAuthService, private profileService: ProfileService) {
+
+  }
+
+  ngOnInit() {
+    this.profileService.getProfile()
+      .subscribe(profile => {
+        this.profile = profile;
+      });
+  }
 }
-
-platformBrowserDynamic().bootstrapModule(AppModule)
-  .catch(err => console.log(err));
