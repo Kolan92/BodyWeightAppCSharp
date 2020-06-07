@@ -3,15 +3,18 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 
+using BodyWeightApp.DataContext.DependencyInjection;
 using BodyWeightApp.WebApi.Extensions;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-
+using Newtonsoft.Json;
 using Okta.AspNetCore;
 
 
@@ -43,7 +46,9 @@ namespace BodyWeightApp.WebApi
                     AuthorizationServerId = Configuration["Okta:AuthorizationServerId"],
                     Audience = Configuration["Okta:Audience"]
                 });
-            services.AddControllers();
+            services.AddControllers()
+                .AddNewtonsoftJson(
+                    options => options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc);
 
             services.AddSwaggerGen(c =>
             {
@@ -64,6 +69,10 @@ namespace BodyWeightApp.WebApi
                         .AllowCredentials()
                 );
             });
+
+
+            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.RegisterDataContextDependencies();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -97,6 +106,7 @@ namespace BodyWeightApp.WebApi
                 //set the RoutePrefix property to an empty string
                 ui.RoutePrefix = string.Empty;
             });
+
         }
 
         private string[] GetOrigins()

@@ -12,13 +12,14 @@ namespace BodyWeightApp.WebApi.Models
     {
         public BodyWeightModel(double weight, double height, DateTime measuredOn)
         {
+            var heightInMeters = height / 100;
             Weight = weight;
-            Bmi = weight / (height * height);
+            Bmi = weight / (heightInMeters * heightInMeters);
             MeasuredOn = measuredOn;
         }
 
-        public double Weight { get; }
-        public double Bmi { get; }
-        public DateTime MeasuredOn { get; }
+        public double Weight { get; set; }
+        public double Bmi { get; set; }
+        public DateTime MeasuredOn { get; set; }
     }
 }
