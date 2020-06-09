@@ -20,10 +20,10 @@ export class LoginComponent implements OnInit {
       baseUrl: sampleConfig.oidc.issuer.split('/oauth2')[0],
       clientId: sampleConfig.oidc.clientId,
       redirectUri: sampleConfig.oidc.redirectUri,
-      logo: '/assets/angular.svg',
+      logo: '/assets/logo.png',
       i18n: {
         en: {
-          'primaryauth.title': 'Sign in to Angular & Company',
+          'primaryauth.title': 'Sign in to Slimline',
         },
       },
       authParams: {
@@ -32,6 +32,11 @@ export class LoginComponent implements OnInit {
         display: 'page',
         scopes: sampleConfig.oidc.scopes,
       },
+      features: {
+        // Used to enable registration feature on the widget.
+        // https://github.com/okta/okta-signin-widget#feature-flags
+         registration: true // REQUIRED
+      }
     });
   }
 
