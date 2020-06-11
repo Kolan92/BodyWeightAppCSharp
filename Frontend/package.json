@@ -4,7 +4,6 @@
   "license": "MIT",
   "scripts": {
     "ng": "ng",
-    "prestart": ". ../set_env_variables.sh",
     "start": "ng serve",
     "build": "ng build --prod",
     "test": "npm run lint && npm run test:custom-login --prefix ../",
