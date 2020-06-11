@@ -10,7 +10,7 @@ namespace BodyWeightApp.WebApi.Models
     }
     public class BodyWeightModel
     {
-        public BodyWeightModel(double weight, double height, DateTime measuredOn)
+        public BodyWeightModel(double weight, double height, DateTimeOffset measuredOn)
         {
             var heightInMeters = height / 100;
             Weight = weight;
@@ -20,6 +20,6 @@ namespace BodyWeightApp.WebApi.Models
 
         public double Weight { get; set; }
         public double Bmi { get; set; }
-        public DateTime MeasuredOn { get; set; }
+        public DateTimeOffset MeasuredOn { get; set; }
     }
 }

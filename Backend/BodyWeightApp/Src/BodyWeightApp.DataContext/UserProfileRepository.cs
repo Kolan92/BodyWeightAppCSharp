@@ -28,7 +28,7 @@ namespace BodyWeightApp.DataContext
             if (userUserProfile == null)
                 throw new ArgumentNullException(nameof(userUserProfile));
 
-            profiles.AddOrUpdate(userUserProfile.UserId, userUserProfile, (uid, profile) => userUserProfile);
+            profiles.AddOrUpdate(userUserProfile.ID, userUserProfile, (uid, profile) => userUserProfile);
 
             return Task.CompletedTask;
         }

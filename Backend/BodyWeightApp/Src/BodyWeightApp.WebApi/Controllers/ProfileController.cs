@@ -71,7 +71,7 @@ namespace BodyWeightApp.WebApi.Controllers
             {
                 BirthDate = userProfile.BirthDate,
                 Height = userProfile.Height,
-                UserId = userId
+                ID = userId
             };
             await userProfileRepository.UpsertUserProfile(entity);
             return NoContent();

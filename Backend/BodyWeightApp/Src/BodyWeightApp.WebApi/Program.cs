@@ -1,5 +1,12 @@
+using System;
+
+using BodyWeightApp.DataContext;
+
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace BodyWeightApp.WebApi
 {
@@ -7,7 +14,9 @@ namespace BodyWeightApp.WebApi
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            var host = CreateHostBuilder(args).Build();
+            CreateDbIfNotExists(host);
+            host.Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -16,5 +25,24 @@ namespace BodyWeightApp.WebApi
                 {
                     webBuilder.UseStartup<Startup>();
                 });
+
+        private static void CreateDbIfNotExists(IHost host)
+        {
+            using var scope = host.Services.CreateScope();
+            var services = scope.ServiceProvider;
+
+            try
+            {
+                var context = services.GetRequiredService<BodyInfoContext>();
+                context.Database.EnsureCreated();
+                context.Database.Migrate();
+            }
+            catch (Exception ex)
+            {
+                var logger = services.GetRequiredService<ILogger<Program>>();
+                logger.LogError(ex, "An error occurred creating the DB.");
+            }
+        }
+
     }
 }
