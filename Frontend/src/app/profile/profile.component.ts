@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { ProfileService } from '../profile.service';
 import { FormBuilder, FormControl } from '@angular/forms';
 import * as moment from 'moment';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-profile',
@@ -13,10 +14,13 @@ export class ProfileComponent implements OnInit {
   private profile: UserProfile;
   public profileForm;
   public buttonMessage = 'Create profile';
+  private toastOptions = { positionClass: 'toast-top-right' };
 
   constructor(
       private profileService: ProfileService,
-      private formBuilder: FormBuilder) {
+      private formBuilder: FormBuilder,
+      private toasterService: ToastrService
+      ) {
   }
 
   ngOnInit() {
@@ -36,12 +40,14 @@ export class ProfileComponent implements OnInit {
   }
 
 
-  onSubmit(updateProfil: UserProfile) {
+  onSubmit(updateProfile: UserProfile) {
 
-    this.profileService.updateUserProfile(updateProfil)
+    this.profileService.updateUserProfile(updateProfile)
       .subscribe(
-        x => this.buttonMessage = 'Update profile'
+        _ => {
+          this.toasterService.success('Successfully updated profile', '', this.toastOptions)
+          this.buttonMessage = 'Update profile';
+        }
     );
-    console.warn('Your profile has been updated', updateProfil);
   }
 }

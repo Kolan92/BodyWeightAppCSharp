@@ -22,24 +22,30 @@
   </div>
 </div>
 
-<p>Height: {{bodyInfo.height}}</p>
-<form [formGroup]="measurmentForm" (ngSubmit)="onSubmit(measurmentForm.value)">
+<div *ngIf="!bodyInfo">
+  Please update your profile first.
+</div>
 
-  <div>
-    <label for="weight">
-      Weight
-    </label>
-    <input id="weight" type="number" class="form-control" formControlName="weight">
-  </div>
+<div *ngIf="bodyInfo">
+  <p>Height: {{bodyInfo.height}}</p>
+  <form [formGroup]="measurementForm" (ngSubmit)="onSubmit(measurementForm.value)">
 
-  <div>
-    <label for="measuredOn">
-      Measurment Date
-    </label>
-    <input id="measuredOn" type="date" class="form-control" formControlName="measuredOn">
-  </div>
+    <div>
+      <label for="weight">
+        Weight
+      </label>
+      <input id="weight" type="number" class="form-control" formControlName="weight">
+    </div>
+
+    <div>
+      <label for="measuredOn">
+        Measurement Date
+      </label>
+      <input id="measuredOn" type="date" class="form-control" formControlName="measuredOn">
+    </div>
 
 
-  <button class="button" type="submit" class="btn btn-primary">Add Measurment</button>
+    <button class="button" type="submit" class="btn btn-primary">Add Measurement</button>
 
-</form>
+  </form>
+</div>

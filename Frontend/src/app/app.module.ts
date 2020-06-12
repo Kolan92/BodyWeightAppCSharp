@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ChartsModule } from 'ng2-charts';
 import { Routes, RouterModule } from '@angular/router';
 import {
@@ -9,6 +9,8 @@ import {
   OktaAuthModule,
   OktaCallbackComponent,
 } from '@okta/okta-angular';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ToastrModule } from 'ngx-toastr';
 
 import sampleConfig from './app.config';
 
@@ -25,6 +27,9 @@ import { LoginComponent } from './login/login.component';
 import { BodyInfoComponent } from './bodyinfo/bodyinfo.component';
 import { ProfileComponent } from './profile/profile.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { AppHttpInterceptor } from './http.interceptor';
+import { CommonModule } from '@angular/common';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 const appRoutes: Routes = [
   {
@@ -60,16 +65,22 @@ const appRoutes: Routes = [
     LoginComponent,
   ],
   imports: [
+    MatSnackBarModule,
+    CommonModule,
     BrowserModule,
     HttpClientModule,
     RouterModule.forRoot(appRoutes),
     OktaAuthModule,
     ChartsModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    BrowserAnimationsModule,
+    ToastrModule.forRoot()
   ],
   providers: [
     { provide: OKTA_CONFIG, useValue: oktaConfig },
+    { provide: HTTP_INTERCEPTORS, useClass: AppHttpInterceptor, multi: true}
+
   ],
   bootstrap: [AppComponent],
 })

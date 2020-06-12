@@ -6,6 +6,7 @@ import { ChartDataSets, ChartOptions } from 'chart.js';
 import { BodyInfoService } from '../body-info.service';
 import { FormBuilder, FormControl } from '@angular/forms';
 import * as moment from 'moment';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-bodyinfo',
@@ -24,7 +25,7 @@ export class BodyInfoComponent implements OnInit {
   public chartType = 'line';
   public chartLegend = true;
   public chartData: Array<ChartDataSets>;
-  public measurmentForm;
+  public measurementForm;
 
   public options: ChartOptions =  {
 
@@ -53,10 +54,13 @@ export class BodyInfoComponent implements OnInit {
       }
     };
 
+    private toastOptions = { positionClass: 'toast-top-right' };
+
   constructor(
     public oktaAuth: OktaAuthService,
     private bodyInfoService: BodyInfoService,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private toasterService: ToastrService
     ) {
   }
 
@@ -65,7 +69,7 @@ export class BodyInfoComponent implements OnInit {
       .subscribe(bodyInfos => {
         this.bodyInfo = bodyInfos;
         console.log(bodyInfos);
-        this.chartLabels = this.bodyInfo.weightMeasurements.map(e => new Date(e.measuredOn).toDateString());
+        this.chartLabels = this.bodyInfo.weightMeasurements.map(e => moment(e.measuredOn).format('YYYY-MM-DD'));
         this.chartData = [
           {
             label: 'Weight',
@@ -78,24 +82,28 @@ export class BodyInfoComponent implements OnInit {
           }
         ];
 
-        const lastMeasurment = this.bodyInfo.weightMeasurements[this.bodyInfo.weightMeasurements.length - 1];
-        this.measurmentForm.get('weight').patchValue(lastMeasurment.weight);
-
+        if (this.bodyInfo.weightMeasurements.length) {
+          const lastMeasurement = this.bodyInfo.weightMeasurements[this.bodyInfo.weightMeasurements.length - 1];
+          this.measurementForm.get('weight').patchValue(lastMeasurement.weight);
+        }
       },
       err => console.error(err));
 
-      this.measurmentForm = this.formBuilder.group({
-        weight: new FormControl(180, []),
+      this.measurementForm = this.formBuilder.group({
+        weight: new FormControl(70, []),
         measuredOn: new FormControl(moment(new Date()).format('YYYY-MM-DD'), []),
       });
   }
 
-  onSubmit(newMesurment) {
-    this.chartLabels.push(newMesurment.measuredOn);
-    this.chartData[0].data.push(newMesurment.weight);
-    const heightInMeters = this.bodyInfo.height / 100;
-    const currnetBmi = newMesurment.weight / (heightInMeters * heightInMeters);
-    this.chartData[1].data.push(currnetBmi);
-    console.warn('Your measuerment has been saved', newMesurment);
+  onSubmit(newMeasurement) {
+      this.chartLabels.push(newMeasurement.measuredOn);
+      this.chartData[0].data.push(newMeasurement.weight);
+      const heightInMeters = this.bodyInfo.height / 100;
+      const currentBmi = newMeasurement.weight / (heightInMeters * heightInMeters);
+      this.chartData[1].data.push(currentBmi);
+      this.bodyInfoService.addMeasurement(newMeasurement)
+        .subscribe(
+          _ => this.toasterService.success('Successfully added new measurement', '', this.toastOptions)
+        );
   }
 }

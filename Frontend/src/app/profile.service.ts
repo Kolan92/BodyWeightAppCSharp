@@ -4,7 +4,7 @@ import config from './app.config';
 import { OktaAuthService } from '@okta/okta-angular';
 import { HttpClient } from '@angular/common/http';
 import { Observable, from } from 'rxjs';
-import { flatMap, map, tap } from 'rxjs/operators';
+import { flatMap } from 'rxjs/operators';
 import { UserProfile } from './models/UserProfile';
 
 @Injectable({
@@ -28,13 +28,10 @@ export class ProfileService {
   public updateUserProfile(userProfile: UserProfile) {
     return from(this.oktaAuth.getAccessToken())
       .pipe(
-        tap(x => console.log(`inside updateuser profile ${userProfile}`)),
         flatMap(accessToken =>
             this.http.put<UserProfile>(`${config.resourceServer.baseApiUrl}/profile`,
             userProfile, {
               headers: {'authorization': `Bearer ${accessToken}`}
             })));
   }
-
-
 }

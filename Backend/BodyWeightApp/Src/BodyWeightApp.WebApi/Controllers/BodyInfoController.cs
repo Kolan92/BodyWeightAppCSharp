@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
 
 using BodyWeightApp.DataContext.Contracts;
@@ -43,28 +43,41 @@ namespace BodyWeightApp.WebApi.Controllers
         [HttpGet]
         [SwaggerResponse(200, type: typeof(BodyInfoModel))]
         [SwaggerResponse(401)]
-        public async Task<IActionResult> GetBodyInfo()
+        public async Task<IActionResult> GetBodyInfo(DateTimeOffset? from, DateTimeOffset? till)
         {
+            var (fromValue, tillValue) = ParseDateRange();
+            if (fromValue >= tillValue)
+                return BadRequest("Till date must be greater than from date");
+
             var userId = httpContextAccessor.GetUserId();
 
-            var height = 190;
+            var userProfile = profileRepository.GetUserProfileAsync(userId);
+            var measurements = bodyInfoRepository.GetBodyWeightsAsync(userId, fromValue, tillValue);
+            await Task.WhenAll(userProfile, measurements);
 
-            var measurements = new List<BodyWeightModel>
-            {
-                new BodyWeightModel( 90, height, new DateTime(2020, 01, 01)),
-                new BodyWeightModel( 90.3, height, new DateTime(2020, 01, 08)),
-                new BodyWeightModel( 91, height, new DateTime(2020, 01, 15)),
-                new BodyWeightModel( 90, height, new DateTime(2020, 01, 22)),
-                new BodyWeightModel( 89.6, height, new DateTime(2020, 01, 29)),
-                new BodyWeightModel( 100, height, new DateTime(2020, 02, 06))
-            };
+            return userProfile.Result.Match<IActionResult>(
+                none: () => NotFound("Can't find user profile"),
+                some: profile =>
+                {
+                    var model = new BodyInfoModel
+                    {
+                        Height = profile.Height,
+                        WeightMeasurements = measurements.Result
+                            .Select(m => new BodyWeightModel(m.Weight, profile.Height, m.MeasuredOn))
+                            .ToList()
+                    };
 
-            var model = new BodyInfoModel
+                    return Ok(model);
+                }
+            );
+
+            (DateTimeOffset fromValue, DateTimeOffset tillValue) ParseDateRange()
             {
-                Height = 190,
-                WeightMeasurements = measurements
-            };
-            return Ok(model);
+                var tillValue = till ?? DateTimeOffset.UtcNow;
+                var fromValue = from ?? tillValue.AddYears(-1);
+
+                return (fromValue, tillValue);
+            }
         }
 
         /// <summary>
@@ -75,7 +88,7 @@ namespace BodyWeightApp.WebApi.Controllers
 
         [HttpPost]
         [SwaggerResponse(200)]
-        public async Task<IActionResult> AddBodyWeight([Required] BodyWeightModel bodyWeightModel)
+        public async Task<IActionResult> AddBodyWeight([Required] NewBodyWeightMeasurement bodyWeightModel)
         {
             var userId = httpContextAccessor.GetUserId();
 

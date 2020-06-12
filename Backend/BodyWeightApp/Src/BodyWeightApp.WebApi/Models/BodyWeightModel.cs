@@ -18,8 +18,14 @@ namespace BodyWeightApp.WebApi.Models
             MeasuredOn = measuredOn;
         }
 
+        public double Weight { get; }
+        public double Bmi { get; }
+        public DateTimeOffset MeasuredOn { get; }
+    }
+
+    public class NewBodyWeightMeasurement
+    {
         public double Weight { get; set; }
-        public double Bmi { get; set; }
         public DateTimeOffset MeasuredOn { get; set; }
     }
 }

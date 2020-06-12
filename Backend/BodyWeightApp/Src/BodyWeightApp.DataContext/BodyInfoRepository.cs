@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,20 +6,35 @@ using System.Threading.Tasks;
 using BodyWeightApp.DataContext.Contracts;
 using BodyWeightApp.DataContext.Entities;
 
+using Microsoft.EntityFrameworkCore;
+
 namespace BodyWeightApp.DataContext
 {
     internal class BodyInfoRepository : IBodyInfoRepository
     {
-        private static readonly ConcurrentDictionary<string, List<BodyWeight>> bodyWeightsDict =
-            new ConcurrentDictionary<string, List<BodyWeight>>();
+        private readonly BodyInfoContext dbContext;
 
-        public Task<IEnumerable<BodyWeight>> GetBodyWeightsAsync(string userId)
+        public BodyInfoRepository(BodyInfoContext bodyInfoContext)
+        {
+            this.dbContext = bodyInfoContext ?? throw new ArgumentNullException(nameof(bodyInfoContext));
+        }
+
+
+        public Task<IEnumerable<BodyWeight>> GetBodyWeightsAsync(string userId, DateTimeOffset from, DateTimeOffset till)
         {
             if (string.IsNullOrWhiteSpace(userId))
-                return Task.FromResult(Enumerable.Empty<BodyWeight>());
+                throw new ArgumentNullException(nameof(userId));
 
-            bodyWeightsDict.TryGetValue(userId, out var bodyWeights);
-            return Task.FromResult(bodyWeights ?? Enumerable.Empty<BodyWeight>());
+            return Implementation();
+
+            async Task<IEnumerable<BodyWeight>> Implementation()
+            {
+                return await dbContext.BodyWeights
+                    .Where(w => w.UserId == userId)
+                    .Where(w => w.MeasuredOn >= from && w.MeasuredOn < till)
+                    .AsNoTracking()
+                    .ToListAsync();
+            }
         }
 
         public Task AddBodyWeightAsync(BodyWeight bodyWeight)
@@ -28,14 +42,13 @@ namespace BodyWeightApp.DataContext
             if (bodyWeight == null)
                 throw new ArgumentNullException(nameof(bodyWeight));
 
-            bodyWeightsDict.AddOrUpdate(bodyWeight.UserId, new List<BodyWeight> { bodyWeight },
-            (uid, weights) =>
-               {
-                   weights.Add(bodyWeight);
-                   return weights;
-               });
+            return Implementation();
 
-            return Task.CompletedTask;
+            async Task Implementation()
+            {
+                await dbContext.BodyWeights.AddAsync(bodyWeight);
+                await dbContext.SaveChangesAsync();
+            }
         }
 
         public Task DeleteBodyWeightAsync(BodyWeight entity)

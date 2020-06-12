@@ -34,7 +34,6 @@ namespace BodyWeightApp.WebApi
             try
             {
                 var context = services.GetRequiredService<BodyInfoContext>();
-                context.Database.EnsureCreated();
                 context.Database.Migrate();
             }
             catch (Exception ex)
@@ -43,6 +42,5 @@ namespace BodyWeightApp.WebApi
                 logger.LogError(ex, "An error occurred creating the DB.");
             }
         }
-
     }
 }

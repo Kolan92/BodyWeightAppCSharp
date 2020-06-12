@@ -45,7 +45,7 @@ namespace BodyWeightApp.WebApi
                 => tokenProvider.KeyVaultTokenCallback(authority, resource, scope));
 
             configBuilder.AddAzureKeyVault(Configuration["KeyVault"], keyVaultClient, new DefaultKeyVaultSecretManager());
-            
+
             Configuration = configBuilder.Build();
         }
 
@@ -95,7 +95,7 @@ namespace BodyWeightApp.WebApi
             services.RegisterDataContextDependencies();
 
             services.AddDbContext<BodyInfoContext>(options =>
-                options.UseNpgsql(Configuration["DbConnectionString"]));
+                options.UseNpgsql(Configuration["DbConnectionString"]), ServiceLifetime.Transient);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -127,8 +127,6 @@ namespace BodyWeightApp.WebApi
             {
                 endpoints.MapControllers();
             });
-
-
         }
 
         private string[] GetOrigins()
