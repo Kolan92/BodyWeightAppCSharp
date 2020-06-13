@@ -61,7 +61,11 @@ namespace BodyWeightApp.DataContext
 
             async Task Implementation()
             {
-                dbContext.BodyWeights.Remove(bodyWeight);
+                var existingEntity = await dbContext.BodyWeights
+                    .SingleOrDefaultAsync(m => m.ID == bodyWeight.ID && m.UserId == bodyWeight.UserId);
+                if (existingEntity == null)
+                    return;
+                dbContext.BodyWeights.Remove(existingEntity);
                 await dbContext.SaveChangesAsync();
             }
         }

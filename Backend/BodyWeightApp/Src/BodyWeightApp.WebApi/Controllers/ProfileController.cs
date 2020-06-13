@@ -10,7 +10,6 @@ using BodyWeightApp.WebApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace BodyWeightApp.WebApi.Controllers
 {
@@ -22,16 +21,13 @@ namespace BodyWeightApp.WebApi.Controllers
     {
         private readonly IHttpContextAccessor httpContextAccessor;
         private readonly IUserProfileRepository userProfileRepository;
-        private readonly ILogger<ProfileController> logger;
 
         public ProfileController(
             IHttpContextAccessor httpContextAccessor,
-            IUserProfileRepository userProfileRepository,
-            ILogger<ProfileController> logger)
+            IUserProfileRepository userProfileRepository)
         {
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             this.userProfileRepository = userProfileRepository ?? throw new ArgumentNullException(nameof(userProfileRepository));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
@@ -66,6 +62,10 @@ namespace BodyWeightApp.WebApi.Controllers
         [HttpPut]
         public async Task<IActionResult> UpsertUserProfile([Required] UserProfileModel userProfile)
         {
+            var (isValid, reason) = userProfile.IsValid();
+            if (!isValid)
+                return BadRequest(reason);
+
             var userId = httpContextAccessor.GetUserId();
             var entity = new UserProfile
             {

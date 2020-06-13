@@ -7,11 +7,10 @@ using BodyWeightApp.DataContext.Contracts;
 using BodyWeightApp.DataContext.Entities;
 using BodyWeightApp.WebApi.Extensions;
 using BodyWeightApp.WebApi.Models;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-
+using Optional.Unsafe;
 using Swashbuckle.Swagger.Annotations;
 
 namespace BodyWeightApp.WebApi.Controllers
@@ -25,15 +24,18 @@ namespace BodyWeightApp.WebApi.Controllers
         private readonly IBodyInfoRepository bodyInfoRepository;
         private readonly IUserProfileRepository profileRepository;
         private readonly IHttpContextAccessor httpContextAccessor;
+        private readonly IUserProfileRepository userProfileRepository;
 
         public BodyInfoController(
             IBodyInfoRepository bodyInfoRepository,
             IUserProfileRepository profileRepository,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor,
+            IUserProfileRepository userProfileRepository)
         {
             this.bodyInfoRepository = bodyInfoRepository ?? throw new ArgumentNullException(nameof(bodyInfoRepository));
             this.profileRepository = profileRepository ?? throw new ArgumentNullException(nameof(profileRepository));
             this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            this.userProfileRepository = userProfileRepository ?? throw new ArgumentException(nameof(userProfileRepository));
         }
 
         /// <summary>
@@ -60,12 +62,13 @@ namespace BodyWeightApp.WebApi.Controllers
                 some: profile =>
                 {
                     var model = new BodyInfoModel
-                    {
-                        Height = profile.Height,
-                        WeightMeasurements = measurements.Result
+                    (
+                        profile.Height,
+                        profile.BirthDate,
+                        measurements.Result
                             .Select(m => new BodyWeightModel(m.ID, m.Weight, m.MeasuredOn, profile.Height))
                             .ToList()
-                    };
+                    );
 
                     return Ok(model);
                 }
@@ -89,7 +92,17 @@ namespace BodyWeightApp.WebApi.Controllers
         [SwaggerResponse(200)]
         public async Task<IActionResult> AddBodyWeight([Required] NewBodyWeightMeasurement bodyWeightModel)
         {
+            var (isValid, reason) = bodyWeightModel.IsValid();
+            if (!isValid)
+                return BadRequest(reason);
+
             var userId = httpContextAccessor.GetUserId();
+            var userProfile = await userProfileRepository.GetUserProfileAsync(userId);
+            if (!userProfile.HasValue)
+                return NotFound();
+
+            if (userProfile.ValueOrFailure().BirthDate > bodyWeightModel.MeasuredOn)
+                return BadRequest("Measure date must be greater than birth date.");
 
             var entity = new BodyWeight
             {

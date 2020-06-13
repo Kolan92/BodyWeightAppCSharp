@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace BodyWeightApp.WebApi.Models
 {
-    public class BodyInfoModel
-    {
-        public double Height { get; set; }
-        public IReadOnlyCollection<BodyWeightModel> WeightMeasurements { get; set; }
-    }
     public class BodyWeightModel
     {
         public BodyWeightModel(int id, double weight, DateTimeOffset measuredOn, double? height = null)
@@ -26,11 +20,5 @@ namespace BodyWeightApp.WebApi.Models
         public double Weight { get; }
         public double Bmi { get; }
         public DateTimeOffset MeasuredOn { get; }
-    }
-
-    public class NewBodyWeightMeasurement
-    {
-        public double Weight { get; set; }
-        public DateTimeOffset MeasuredOn { get; set; }
     }
 }
