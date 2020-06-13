@@ -32,6 +32,7 @@ namespace BodyWeightApp.DataContext
                 return await dbContext.BodyWeights
                     .Where(w => w.UserId == userId)
                     .Where(w => w.MeasuredOn >= from && w.MeasuredOn < till)
+                    .OrderBy(m => m.MeasuredOn)
                     .AsNoTracking()
                     .ToListAsync();
             }
@@ -51,9 +52,18 @@ namespace BodyWeightApp.DataContext
             }
         }
 
-        public Task DeleteBodyWeightAsync(BodyWeight entity)
+        public Task DeleteBodyWeightAsync(BodyWeight bodyWeight)
         {
-            throw new NotImplementedException();
+            if (bodyWeight == null)
+                throw new ArgumentNullException(nameof(bodyWeight));
+
+            return Implementation();
+
+            async Task Implementation()
+            {
+                dbContext.BodyWeights.Remove(bodyWeight);
+                await dbContext.SaveChangesAsync();
+            }
         }
     }
 }

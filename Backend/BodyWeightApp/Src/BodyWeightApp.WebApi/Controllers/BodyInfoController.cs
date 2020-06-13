@@ -63,7 +63,7 @@ namespace BodyWeightApp.WebApi.Controllers
                     {
                         Height = profile.Height,
                         WeightMeasurements = measurements.Result
-                            .Select(m => new BodyWeightModel(m.Weight, profile.Height, m.MeasuredOn))
+                            .Select(m => new BodyWeightModel(m.ID, m.Weight, m.MeasuredOn, profile.Height))
                             .ToList()
                     };
 
@@ -85,7 +85,6 @@ namespace BodyWeightApp.WebApi.Controllers
         /// </summary>
         /// <param name="bodyWeightModel"></param>
         /// <returns></returns>
-
         [HttpPost]
         [SwaggerResponse(200)]
         public async Task<IActionResult> AddBodyWeight([Required] NewBodyWeightMeasurement bodyWeightModel)
@@ -99,9 +98,9 @@ namespace BodyWeightApp.WebApi.Controllers
                 MeasuredOn = bodyWeightModel.MeasuredOn
             };
             await bodyInfoRepository.AddBodyWeightAsync(entity);
-            return NoContent();
+            var model = new BodyWeightModel(entity.ID, entity.Weight, entity.MeasuredOn);
+            return Ok(model);
         }
-
 
         /// <summary>
         /// Deletes measurements from the database
@@ -116,6 +115,7 @@ namespace BodyWeightApp.WebApi.Controllers
 
             var entity = new BodyWeight
             {
+                ID = bodyWeightModel.Id,
                 UserId = userId,
                 Weight = bodyWeightModel.Weight,
                 MeasuredOn = bodyWeightModel.MeasuredOn

@@ -9,43 +9,56 @@
   </div>
 </div>
 
-<div>
-  <div style="display: block" *ngIf="chartData">
-    <canvas baseChart
-            [datasets]="chartData"
-            [labels]="chartLabels"
-            [options]="chartOptions"
-            [legend]="chartLegend"
-            [chartType]="chartType"
-            [options]="options">
-    </canvas>
-  </div>
-</div>
-
 <div *ngIf="!bodyInfo">
   Please update your profile first.
 </div>
 
 <div *ngIf="bodyInfo">
-  <p>Height: {{bodyInfo.height}}</p>
-  <form [formGroup]="measurementForm" (ngSubmit)="onSubmit(measurementForm.value)">
-
-    <div>
-      <label for="weight">
-        Weight
-      </label>
-      <input id="weight" type="number" class="form-control" formControlName="weight">
+  <div class="container">
+    <div class="p-5 row">
+      <div class="col-sm-12">
+        <div style="display: block" *ngIf="chartData">
+          <canvas baseChart [datasets]="chartData" [labels]="chartLabels" [options]="chartOptions"
+            [legend]="chartLegend" [chartType]="chartType" [options]="options">
+          </canvas>
+        </div>
+      </div>
     </div>
-
-    <div>
-      <label for="measuredOn">
-        Measurement Date
-      </label>
-      <input id="measuredOn" type="date" class="form-control" formControlName="measuredOn">
+    <div class="p-5 row">
+      <div class="col-sm-12">
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>Measure on</th>
+              <th>Weight</th>
+              <th>BMI</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <input id="measuredOn" type="date" class="form-control" [(ngModel)]="editableWeight.measuredOn">
+              </td>
+              <td>
+                <input id="weight" type="number" class="form-control" [(ngModel)]="editableWeight.weight">
+              </td>
+              <td>N/A</td>
+              <td>
+                <button type="submit" class="w-100 btn btn-primary" (click)="addNew()">Add Measurement</button>
+              </td>
+            </tr>
+            <tr *ngFor="let measure of bodyInfo.weightMeasurements.reverse()" [attr.id]="measure.id">
+              <td>{{moment(measure.measuredOn).format('YYYY-MM-DD')}}</td>
+              <td>{{measure.weight}}</td>
+              <td>{{measure.bmi.toFixed(2)}}</td>
+              <td>
+                <button type="button" class="w-100 btn btn-danger" (click)="deleteMeasurement(measure)">Remove</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-
-
-    <button class="button" type="submit" class="btn btn-primary">Add Measurement</button>
-
-  </form>
+  </div>
 </div>

@@ -1,4 +1,4 @@
-import { BodyInfo } from './../models/BodyInfo';
+import { BodyInfo, BodyWeight } from './../models/BodyInfo';
 import { Component, OnInit } from '@angular/core';
 import { OktaAuthService } from '@okta/okta-angular';
 import { ChartDataSets, ChartOptions } from 'chart.js';
@@ -16,7 +16,10 @@ import { ToastrService } from 'ngx-toastr';
 export class BodyInfoComponent implements OnInit {
   failed: Boolean;
   public bodyInfo: BodyInfo;
-
+  public editableWeight: BodyWeight = <BodyWeight>{
+    measuredOn: new Date(),
+    weight: 0
+  };
   public chartOptions = {
     scaleShowVerticalLines: false,
     responsive: true
@@ -26,6 +29,8 @@ export class BodyInfoComponent implements OnInit {
   public chartLegend = true;
   public chartData: Array<ChartDataSets>;
   public measurementForm;
+  public moment: any = moment;
+
 
   public options: ChartOptions =  {
 
@@ -54,34 +59,20 @@ export class BodyInfoComponent implements OnInit {
       }
     };
 
-    private toastOptions = { positionClass: 'toast-top-right' };
+  private toastOptions = { positionClass: 'toast-top-right' };
 
   constructor(
     public oktaAuth: OktaAuthService,
     private bodyInfoService: BodyInfoService,
     private formBuilder: FormBuilder,
     private toasterService: ToastrService
-    ) {
-  }
+    ) {  }
 
   ngOnInit() {
     this.bodyInfoService.getBodyInfo()
       .subscribe(bodyInfos => {
         this.bodyInfo = bodyInfos;
-        console.log(bodyInfos);
-        this.chartLabels = this.bodyInfo.weightMeasurements.map(e => moment(e.measuredOn).format('YYYY-MM-DD'));
-        this.chartData = [
-          {
-            label: 'Weight',
-            yAxisID: 'weight',
-            data : this.bodyInfo.weightMeasurements.map(e => e.weight)},
-          {
-            label: 'Body Weight Index',
-            yAxisID: 'bmi',
-            data : this.bodyInfo.weightMeasurements.map(e => e.bmi)
-          }
-        ];
-
+        this.updateChartData();
         if (this.bodyInfo.weightMeasurements.length) {
           const lastMeasurement = this.bodyInfo.weightMeasurements[this.bodyInfo.weightMeasurements.length - 1];
           this.measurementForm.get('weight').patchValue(lastMeasurement.weight);
@@ -95,15 +86,56 @@ export class BodyInfoComponent implements OnInit {
       });
   }
 
-  onSubmit(newMeasurement) {
-      this.chartLabels.push(newMeasurement.measuredOn);
-      this.chartData[0].data.push(newMeasurement.weight);
-      const heightInMeters = this.bodyInfo.height / 100;
-      const currentBmi = newMeasurement.weight / (heightInMeters * heightInMeters);
-      this.chartData[1].data.push(currentBmi);
-      this.bodyInfoService.addMeasurement(newMeasurement)
+  addNew() {
+    console.warn('lol' + JSON.stringify(this.editableWeight))
+
+    const heightInMeters = this.bodyInfo.height / 100;
+    const currentBmi = this.editableWeight.weight / (heightInMeters * heightInMeters);
+    const newMeasurement = <BodyWeight>{
+      bmi: currentBmi,
+      weight: this.editableWeight.weight,
+      measuredOn: this.editableWeight.measuredOn
+    };
+
+    this.bodyInfoService.addMeasurement(newMeasurement)
         .subscribe(
-          _ => this.toasterService.success('Successfully added new measurement', '', this.toastOptions)
+          model => {
+            this.toasterService.success('Added measurement', '', this.toastOptions);
+            newMeasurement.id = model.id;
+            this.bodyInfo.weightMeasurements.push(newMeasurement);
+            this.updateChartData();
+            this.editableWeight = <BodyWeight>{
+              measuredOn: new Date(),
+              weight: 0
+            };
+          }
         );
+  }
+
+  deleteMeasurement(measurement: BodyWeight) {
+    this.bodyInfoService.deleteMeasurement(measurement)
+      .subscribe(
+        _ => {
+          this.toasterService.success('Removed measurement', '', this.toastOptions);
+          const index = this.bodyInfo.weightMeasurements.findIndex(m => m.id === measurement.id);
+          this.bodyInfo.weightMeasurements.splice(index, 1);
+          this.updateChartData();
+        }
+      );
+  }
+
+  updateChartData() {
+    this.chartLabels = this.bodyInfo.weightMeasurements.map(e => moment(e.measuredOn).format('YYYY-MM-DD'));
+    this.chartData = [
+      {
+        label: 'Weight',
+        yAxisID: 'weight',
+        data : this.bodyInfo.weightMeasurements.map(e => e.weight)},
+      {
+        label: 'Body Weight Index',
+        yAxisID: 'bmi',
+        data : this.bodyInfo.weightMeasurements.map(e => e.bmi)
+      }
+    ];
   }
 }

@@ -11,6 +11,6 @@ namespace BodyWeightApp.DataContext.Contracts
     {
         Task<IEnumerable<BodyWeight>> GetBodyWeightsAsync(string userId, DateTimeOffset @from, DateTimeOffset till);
         Task AddBodyWeightAsync(BodyWeight bodyWeight);
-        Task DeleteBodyWeightAsync(BodyWeight entity);
+        Task DeleteBodyWeightAsync(BodyWeight bodyWeight);
     }
 }

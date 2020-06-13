@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { OktaAuthService } from '@okta/okta-angular';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { flatMap } from 'rxjs/operators';
 import { Observable, from} from 'rxjs';
 
@@ -26,7 +26,6 @@ export class BodyInfoService {
 
   public addMeasurement(measurement: BodyWeight) {
 
-    console.warn('adding new mes')
     return from(this.oktaAuth.getAccessToken())
       .pipe(
         flatMap(accessToken =>
@@ -34,5 +33,20 @@ export class BodyInfoService {
             measurement, {
               headers: {'authorization': `Bearer ${accessToken}`}
             })));
+  }
+
+  public deleteMeasurement(measurement: BodyWeight) {
+    return from(this.oktaAuth.getAccessToken())
+      .pipe(
+        flatMap(accessToken => {
+          const options = {
+            headers: new HttpHeaders({
+              'authorization': `Bearer ${accessToken}`
+            }),
+            body: measurement
+          };
+
+          return this.http.delete<BodyWeight>(`${config.resourceServer.baseApiUrl}/bodyinfo`, options);
+      }));
   }
 }
