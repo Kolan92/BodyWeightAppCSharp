@@ -1,21 +1,14 @@
 <h1 class="ui header">
   <i aria-hidden="true" class="universal access icon"></i> My bodyinfo
 </h1>
-<div *ngIf="failed" class="ui error message">
-  <div class="content">
-    <div class="header">
-      Failed to fetch body info.
-    </div>
-  </div>
-</div>
-
 <div *ngIf="!bodyInfo">
   Please update your profile first.
 </div>
 
 <div *ngIf="bodyInfo">
+
   <div class="container">
-    <div class="p-5 row">
+    <div class="p-3 row">
       <div class="col-sm-12">
         <div style="display: block" *ngIf="chartData">
           <canvas baseChart [datasets]="chartData" [labels]="chartLabels" [options]="chartOptions"
@@ -24,9 +17,63 @@
         </div>
       </div>
     </div>
-    <div class="p-5 row">
+    <div class="p-3 row">
+
+      <div class="col-md-8">
+        <div>
+
+        <form [formGroup]="measurementForm" class="needs-validation" (ngSubmit)="onSubmit(measurementForm.value)">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="measuredOn" class="control-label">Measurement Date</label>
+              <input id="measuredOn" type="date" class="form-control" formControlName="measuredOn">
+              <div *ngIf="f.measuredOn.invalid && (f.measuredOn.dirty || f.measuredOn.touched)" class="alert alert-danger">
+                <div *ngIf="f.measuredOn.errors.required">
+                  Measure date is required.
+                </div>
+                <div *ngIf="f.measuredOn.errors.minDate">
+                  Min date for measurement is your birthday.
+                </div>
+                <div *ngIf="f.measuredOn.errors.maxDate">
+                  Max date for measurement is today.
+                </div>
+              </div>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="weight" class="control-label">Weight</label>
+              <input id="weight" name="weight" class="form-control" type="number" required min="1" max="1000"
+                formControlName="weight">
+
+              <div *ngIf="f.weight.invalid && (f.weight.dirty || f.weight.touched)" class="alert alert-danger">
+                <div *ngIf="f.weight.errors.required">
+                  Weight is required.
+                </div>
+                <div *ngIf="f.weight.errors.min">
+                  Min weight is 1kg.
+                </div>
+                <div *ngIf="f.weight.errors.max">
+                  Max weight is 1000kg.
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <div>
+            <button class="button" type="submit" class="btn btn-primary h-60" [disabled]="measurementForm.invalid">Add Measurement</button>
+          </div>
+        </form>
+
+      </div>
+
+      </div>
+      <div class="col-sm-3">
+        <p>Height:</p>
+        <p>{{bodyInfo.height}}</p>
+      </div>
+    </div>
+    <div class="p-3 row">
       <div class="col-sm-12">
-        <table class="table table-bordered table-striped">
+        <table class="table table-bordered table-striped table-hover">
           <thead>
             <tr>
               <th>Measure on</th>
@@ -36,24 +83,12 @@
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>
-                <input id="measuredOn" type="date" class="form-control" [(ngModel)]="editableWeight.measuredOn">
-              </td>
-              <td>
-                <input id="weight" type="number" class="form-control" [(ngModel)]="editableWeight.weight">
-              </td>
-              <td>N/A</td>
-              <td>
-                <button type="submit" class="w-100 btn btn-primary" (click)="addNew()">Add Measurement</button>
-              </td>
-            </tr>
             <tr *ngFor="let measure of bodyInfo.weightMeasurements.reverse()" [attr.id]="measure.id">
               <td>{{moment(measure.measuredOn).format('YYYY-MM-DD')}}</td>
               <td>{{measure.weight}}</td>
               <td>{{measure.bmi.toFixed(2)}}</td>
               <td>
-                <button type="button" class="w-100 btn btn-danger" (click)="deleteMeasurement(measure)">Remove</button>
+                <button type="button" class="btn btn-link" (click)="deleteMeasurement(measure)">Remove</button>
               </td>
             </tr>
           </tbody>
@@ -61,4 +96,3 @@
       </div>
     </div>
   </div>
-</div>
