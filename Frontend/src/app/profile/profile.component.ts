@@ -1,9 +1,10 @@
 import { UserProfile } from './../models/UserProfile';
 import { Component, OnInit } from '@angular/core';
 import { ProfileService } from '../profile.service';
-import { FormBuilder, FormControl } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import * as moment from 'moment';
 import { ToastrService } from 'ngx-toastr';
+import { CustomValidators } from 'ngx-custom-validators';
 
 @Component({
   selector: 'app-profile',
@@ -12,7 +13,11 @@ import { ToastrService } from 'ngx-toastr';
 })
 export class ProfileComponent implements OnInit {
   private profile: UserProfile;
-  public profileForm;
+  public profileForm: FormGroup;
+  get f() {
+    return this.profileForm.controls;
+  }
+  public moment: any = moment;
   public buttonMessage = 'Create profile';
   private toastOptions = { positionClass: 'toast-top-right' };
 
@@ -33,9 +38,11 @@ export class ProfileComponent implements OnInit {
 
     });
 
+    const now = new Date();
+    const dateValidators = [CustomValidators.maxDate(now), CustomValidators.minDate(new Date().setFullYear(now.getFullYear() - 135))];
     this.profileForm = this.formBuilder.group({
-      height: new FormControl(180, []),
-      birthDate: new FormControl(moment(new Date()).format('YYYY-MM-DD'), []),
+      height: new FormControl(180, [Validators.min(20), Validators.max(300)]),
+      birthDate: new FormControl(moment(now).format('YYYY-MM-DD'), dateValidators),
     });
   }
 
